@@ -60,7 +60,9 @@ const userController = {
     // const userId = req.user.id
 
     return Promise.all([
-      User.findByPk(id, { raw: true }), // 查詢動態路由id的user資料
+      User.findByPk(id, { // 查詢動態路由id的user資料，並多對多關連restaurant和user
+        include: [{ model: Restaurant, as: 'FavoritedRestaurants' }, { model: User, as: 'Followings' }, { model: User, as: 'Followers' }]
+      }),
       Comment.findAndCountAll({ // 查詢使用者的評論資料
         include: Restaurant,
         where: { userId: id },
@@ -72,8 +74,13 @@ const userController = {
         // 判斷是否有該資料，否回傳錯誤訊息
         if (!user) throw new Error("User didn't exists!")
 
+        // 計算收藏餐廳、追蹤者、追隨者筆數
+        const favroitedCounts = user.FavoritedRestaurants.length
+        const followingCounts = user.Followings.length
+        const followerCounts = user.Followers.length
+
         // 渲染users/profile頁面，並帶入參數
-        return res.render('users/profile', { user, comment: comment.rows, commentCounts: comment.count })
+        return res.render('users/profile', { user: user.toJSON(), comment: comment.rows, commentCounts: comment.count, favroitedCounts, followingCounts, followerCounts })
       })
       .catch(err => next(err))
   },
@@ -248,8 +255,8 @@ const userController = {
           // 判斷登入者是否追蹤該使用者
           isFollowed: req.user.Followings.some(f => f.id === user.id)
         }))
-        // user資料依followerCount降冪排列
-        // sort函式回傳值 >0 b移到a前面 ; <0 b移到a後面 ; =0不移動
+          // user資料依followerCount降冪排列
+          // sort函式回傳值 >0 b移到a前面 ; <0 b移到a後面 ; =0不移動
           .sort((a, b) => b.followerCount - a.followerCount)
 
         res.render('top-users', { users: result })
