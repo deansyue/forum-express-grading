@@ -1,10 +1,10 @@
 // 引入模組
 const bcrypt = require('bcryptjs')
-const db = require('../models')
+const db = require('../../models')
 const { User, Comment, Restaurant, Favorite, Like, Followship } = db
 
 // 引入file-helpers
-const { imgurFileHandler } = require('../helpers/file-helpers')
+const { imgurFileHandler } = require('../../helpers/file-helpers')
 
 const userController = {
   // 渲染signup頁面

@@ -1,5 +1,5 @@
 // 引入model
-const { User, Restaurant, Comment } = require('../models')
+const { User, Restaurant, Comment } = require('../../models')
 
 const commentController = {
   // 新增評論

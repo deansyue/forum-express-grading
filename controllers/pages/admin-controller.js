@@ -1,7 +1,7 @@
 // 引入model
-const { Restaurant, User, Category } = require('../models')
+const { Restaurant, User, Category } = require('../../models')
 // 引入file-helpers
-const { imgurFileHandler } = require('../helpers/file-helpers')
+const { imgurFileHandler } = require('../../helpers/file-helpers')
 
 const adminController = {
   // 瀏覽後台網頁

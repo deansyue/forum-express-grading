@@ -1,5 +1,5 @@
 // 引入model
-const { Category } = require('../models')
+const { Category } = require('../../models')
 
 const categoryController = {
   // 渲染admin/categories頁面
