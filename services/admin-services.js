@@ -1,5 +1,7 @@
 // 引入model
 const { Restaurant, Category } = require('../models')
+// 引入file-helpers
+const { imgurFileHandler } = require('../helpers/file-helpers')
 
 const adminServices = {
   // 瀏覽後台網頁
@@ -15,6 +17,36 @@ const adminServices = {
     })
       // 回傳資料
       .then(restaurants => cb(null, { restaurants }))
+      .catch(err => cb(err))
+  },
+
+  // 新增餐廳路由
+  postRestaurant: (req, cb) => {
+    // 取得表單資料
+    const { name, tel, address, description, openingHours, categoryId } = req.body
+
+    // 判斷name欄位是否有值，若無則丟出Error物件
+    if (!name) throw new Error('Restaurant name is required')
+
+    // 取得在middleware/multer處理過放在req.file裡的圖片資料
+    const { file } = req
+
+    // 呼叫localFileHandler處理圖片檔案
+    imgurFileHandler(file)
+      // 取得圖片路徑後，將全部資料新增至資料庫
+      .then(filePath => Restaurant.create({
+        name,
+        tel,
+        address,
+        description,
+        openingHours,
+        image: filePath || null,
+        categoryId
+      }))
+      .then(newRestaurant => {
+        // 回傳物件
+        cb(null, { restaurant: newRestaurant })
+      })
       .catch(err => cb(err))
   },
 

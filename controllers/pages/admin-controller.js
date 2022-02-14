@@ -23,33 +23,15 @@ const adminController = {
 
   // 新增餐廳路由
   postRestaurant: (req, res, next) => {
-    // 取得表單資料
-    const { name, tel, address, description, openingHours, categoryId } = req.body
+    // 使用共用方法adminServices.putRestaurant，回傳err與data參數，若有error則回傳error，若無則將data回傳json物件
+    adminServices.postRestaurant(req, (err, data) => {
+      // 判斷是否為error， 是則回傳err物件
+      if (err) return next(err)
 
-    // 判斷name欄位是否有值，若無則丟出Error物件
-    if (!name) throw new Error('Restaurant name is required')
-
-    // 取得在middleware/multer處理過放在req.file裡的圖片資料
-    const { file } = req
-
-    // 呼叫localFileHandler處理圖片檔案
-    imgurFileHandler(file)
-      // 取得圖片路徑後，將全部資料新增至資料庫
-      .then(filePath => Restaurant.create({
-        name,
-        tel,
-        address,
-        description,
-        openingHours,
-        image: filePath || null,
-        categoryId
-      }))
-      .then(() => {
-        // 回傳成功訊息，並導向admin/restaurants
-        req.flash('success_messages', 'restaurant was successfully created')
-        res.redirect('/admin/restaurants')
-      })
-      .catch(err => next(err))
+      // 成功新增資料，給予成功訊息，並重新導向admin/restaurants頁面
+      req.flash('success_messages', 'restaurant was successfully created')
+      res.redirect('/admin/restaurants', data)
+    })
   },
 
   // 查看餐廳詳細資料的路由

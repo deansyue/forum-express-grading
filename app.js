@@ -26,6 +26,8 @@ app.engine('hbs', handlebars({ extname: '.hbs', helpers: handlebarsHelpers }))
 app.set('view engine', 'hbs')
 // 設定body-parser
 app.use(express.urlencoded({ extended: true }))
+// 使express可解析json物件
+app.use(express.json())
 // 建立session
 app.use(session({ secret: SESSION_SECRET, resave: false, saveUninitialized: true }))
 // 初始化passport
