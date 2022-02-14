@@ -134,18 +134,8 @@ const adminController = {
 
   // 刪除資料路由
   deleteRestaurant: (req, res, next) => {
-    // 使用動態id查詢資料庫資料
-    return Restaurant.findByPk(req.params.rest_id)
-      .then(restaurant => {
-        // 判斷是否有資料，若無丟出Error物件
-        if (!restaurant) throw new Error("Restaurant didn't exists!")
-
-        // 若有資料，刪除該資料
-        return restaurant.destroy()
-      })
-      // 重新導向admin/restaurants
-      .then(() => res.redirect('/admin/restaurants'))
-      .catch(err => next(err))
+    // 使用共用方法adminServices.deleteRestaurant，回傳err與data參數，若有error則回傳error，若無則重新導向頁面
+    adminServices.deleteRestaurant(req, (err, data) => err ? next(err) : res.redirect('/admin/restaurants', data))
   },
 
   // 渲染admin/users頁面

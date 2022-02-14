@@ -5,7 +5,7 @@ const restaurantController = {
   // 瀏覽餐廳頁面
   getRestaurants: (req, res, next) => {
     // 使用共用方法restaurantServices.getRestaurants傳入req參數，回傳err與data參數，若有error則回傳error，若無則將data回傳json物件
-    restaurantServices.getRestaurants(req, (err, data) => err ? next(err) : res.json(data))
+    restaurantServices.getRestaurants(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 
