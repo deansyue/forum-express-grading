@@ -2,22 +2,13 @@
 const { Restaurant, User, Category } = require('../../models')
 // 引入file-helpers
 const { imgurFileHandler } = require('../../helpers/file-helpers')
+const adminServices = require('../../services/admin-services')
 
 const adminController = {
   // 瀏覽後台網頁
   getRestaurants: (req, res, next) => {
-    // 查詢Restaurant所有資料
-    Restaurant.findAll({
-      // 去除sequelize物件實例
-      raw: true,
-      // 將關連的資料包成一個物件
-      nest: true,
-      // 關連Category
-      include: [Category]
-    })
-      // 渲染admin/restaurants畫面
-      .then(restaurants => res.render('admin/restaurants', { restaurants }))
-      .catch(err => next(err))
+    // 使用共用方法adminServices.getRestaurants回傳err與data參數，若有error則回傳error，若無則渲染畫面傳入data
+    adminServices.getRestaurants((err, data) => err ? next(err) : res.render('admin/restaurants', data))
   },
 
   // 渲染新增餐廳頁面
