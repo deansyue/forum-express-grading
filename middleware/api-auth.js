@@ -3,7 +3,14 @@ const passport = require('../config/passport')
 
 // passport.authenticate() 是 passport-jwt 提供的方法
 // 使用passport jwt格式驗証方法，驗証傳入的token是否有登入
-const authenticated = passport.authenticate('jwt', { session: false })
+const authenticated = (req, res, next) => {
+  passport.authenticate('jwt', { session: false }, (err, user) => {
+    // 若為錯誤或user沒資料，回傳錯誤訊息
+    if (err || !user) return res.status(401).json({ status: 'error', message: 'unauthorized' })
+
+    next()
+  })(req, res, next)
+}
 
 const authenticatedAdmin = (req, res, next) => {
   // 因config/passport.js 裡的設定，方法最後會回傳 user

@@ -14,6 +14,9 @@ const userController = require('../../controllers/apis/user-controller')
 // 建立admin相關路由
 router.use('/admin', authenticated, authenticatedAdmin, admin)
 
+// signup相關路由
+router.post('/signup', userController.signUp)
+
 // signin相關路由
 router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
 

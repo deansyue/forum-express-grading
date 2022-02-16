@@ -1,6 +1,17 @@
 const jwt = require('jsonwebtoken')
 
+const userServices = require('../../services/user-services')
+
 const userController = {
+  // 註冊路由
+  signUp: (req, res, next) => {
+    userServices.signUp(req, (err, data) => {
+      if (err) return next(err)
+      // 刪除回傳資料的password資料
+      delete data.user.password
+      res.json({ status: 'success', data })
+    })
+  },
   // 登入路由
   signIn: (req, res, next) => {
     try {
