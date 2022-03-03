@@ -39,12 +39,13 @@ passport.use(new LocalStrategy(
 // 宣告物件，有token的authorization header 裡的 bearer 資訊，與所設定的金鑰
 const jwtOptions = {
   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET
+  secretOrKey: process.env.JWT_SECRET,
+  passReqToCallback: true
 }
 
 // 設定jwt的登入策略
 // 帶入jwtOptions，解開 token並回傳jwt裡的payload資料
-passport.use(new JWTStrategy(jwtOptions, (jwtPayload, cb) => {
+passport.use(new JWTStrategy(jwtOptions, (req, jwtPayload, cb) => {
   // 使用payload的id資料尋找user資料，並關連其他model
   User.findByPk(jwtPayload.id, {
     include: [
@@ -54,7 +55,10 @@ passport.use(new JWTStrategy(jwtOptions, (jwtPayload, cb) => {
       { model: User, as: 'Followings' }
     ]
   })
-    .then(user => cb(null, user)) // 回傳user資料
+    .then(user => {
+      req.user = user
+      cb(null, user)
+    }) // 回傳user資料
     .catch(err => cb(err))
 }))
 

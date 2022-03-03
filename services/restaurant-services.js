@@ -1,5 +1,5 @@
 // 引入model
-const { Restaurant, Category } = require('../models')
+const { Restaurant, Category, User } = require('../models')
 const { getOffset, getPagination } = require('../helpers/pagination-helper')
 
 const restaurantServices = {
@@ -53,6 +53,61 @@ const restaurantServices = {
         })
       })
       .catch(err => callback(err))
+  },
+
+  getTopRestaurants: (req, cb) => {
+    const length = req.query.length ? Number(req.query.length) : {}
+
+    Restaurant.findAll({
+      limit: length,
+      order: length ? [['createdAt', 'DESC']] : [],
+      raw: true
+    })
+      .then(restaurants => cb(null, { restaurant: restaurants }))
+      .catch(err => cb(err))
+  },
+
+  // 瀏覽特定餐廳詳細資訊
+  getRestaurant: (req, cb) => {
+    Restaurant.findByPk(req.params.id, {
+      include: [
+        Category,
+        { model: User, as: 'FavoritedUsers' },
+        { model: User, as: 'LikedUsers' }
+      ]
+    })
+      .then(restaurant => {
+        // 若查詢不到資料，回傳錯誤訊息
+        if (!restaurant) throw new Error("Restaurant doesn't exist!")
+
+        // 更新資料庫viewCounts值 + 1
+        return restaurant.increment('viewCounts')
+      })
+      // 渲染restaurant頁面，將參數轉換成普通物件並帶入
+      .then(restaurant => {
+        const isFavorited = restaurant.FavoritedUsers?.some(fu => fu.id === req.user.id) // 判斷FavoritedUsers是否存在登入者的id
+        const isLiked = restaurant.LikedUsers?.some(lu => lu.id === req.user.id) // 判斷LikedUsers是否存在登入者的id
+        cb(null, { restaurant: restaurant.toJSON(), isFavorited, isLiked })
+      })
+      .catch(err => cb(err))
+  },
+
+  // 瀏覽特定餐廳的點擊次數
+  getDashboard: (req, cb) => {
+    // 查詢動態路由的restaurant資料，並關聯category
+    return Restaurant.findByPk(req.params.id, {
+      include: Category,
+      nest: true,
+      raw: true
+    })
+      .then(restaurant => {
+        // 若查詢不到資料，回傳錯誤訊息
+        if (!restaurant) throw new Error("Restaurant doesn't exist!")
+
+        // 渲染dashboard頁面，並帶入參數
+        return cb(null, { restaurant })
+      })
+      .catch(err => cb(err))
   }
 }
 
